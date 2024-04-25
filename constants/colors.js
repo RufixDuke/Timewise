@@ -1,0 +1,16 @@
+export const Colors = {
+  primary: "rgba(251, 199, 36, 1)",
+  background: "rgba(8, 8, 8, 1)",
+  text: "rgba(224, 224, 224, 1)",
+  header: "rgba(203, 203, 203, 1)",
+  switch_active: "rgba(253, 192, 8, 1)",
+  menu_bg: "rgba(33, 33, 33, 1)",
+  group_bg: "rgba(26, 26, 26, 1)",
+  white: "rgba(255, 255, 255, 1)",
+  gray: "rgba(118, 118, 118, 1)",
+  placeholder: "rgba(203, 203, 203, 1)",
+  inputLabelText: "rgba(118, 118, 118, 1)",
+  inputBg: "rgba(41, 41, 41, 1)",
+  buttonText: "rgba(17, 17, 17, 1)",
+  menu_label: "rgba(97, 97, 97, 1)",
+};
