@@ -10,8 +10,8 @@ import { Colors } from "../constants/colors";
 
 const SwipeableButton = ({ onSwipeComplete }) => {
   const { width } = Dimensions.get("window");
-  const buttonWidth = 56; // Width of the swipeable button
-  const viewWidth = 340; // Width of the containing view
+  const buttonWidth = 56;
+  const viewWidth = 340;
 
   const translateX = new Animated.Value(0);
 
@@ -22,11 +22,9 @@ const SwipeableButton = ({ onSwipeComplete }) => {
 
   const handleSwipe = (event) => {
     if (event.nativeEvent.state === State.END) {
-      //   const maxTranslateX = viewWidth - buttonWidth; // Maximum translation allowed
       if (event.nativeEvent.translationX >= viewWidth) {
-        // If the button is swiped to the end
-        onSwipeComplete(); // Callback for task completion
-        translateX.setValue(0); // Reset animation
+        onSwipeComplete();
+        translateX.setValue(0);
       } else {
         Animated.spring(translateX, {
           toValue: 0,
