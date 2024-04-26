@@ -13,11 +13,12 @@ import AuthSlice from "./AuthSlice";
 import AlarmSlice from "./AlarmSlice";
 import TaskSlice from "./TaskSlice";
 import SleepTargetSlice from "./SleepTargetSlice";
+import UserSlice from "./UserSlice";
 
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
-  whitelist: ["isAuth", "alarms", "tasks", "sleep"],
+  whitelist: ["isAuth", "alarms", "tasks", "sleep", "user"],
 };
 
 const rootReducer = combineReducers({
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   alarms: AlarmSlice,
   tasks: TaskSlice,
   sleep: SleepTargetSlice,
+  user: UserSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -207,6 +207,7 @@ const OnboardingScreen = () => {
             fontSize: Fonts.body3.fontSize,
             textAlign: "center",
           }}
+          onPress={() => navigation.navigate(routes.REGISTER_SCREEN)}
         >
           Don't have an account?{" "}
           <Text
@@ -219,19 +220,6 @@ const OnboardingScreen = () => {
             Create One
           </Text>
         </Text>
-        {/* {isDarkMode ? (
-          <AppButtonDarkMode
-            label={"Get Started"}
-            onPress={() => navigation.navigate(routes.LOGIN_SCREEN)}
-            isDarkMode={isDarkMode}
-          />
-        ) : (
-          <AppButton
-            label={"Get Started"}
-            onPress={() => navigation.navigate(routes.LOGIN_SCREEN)}
-            // isDarkMode={isDarkMode}
-          />
-        )} */}
       </View>
     </ImageBackground>
   );

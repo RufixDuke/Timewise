@@ -7,7 +7,7 @@ import { Colors } from "../../constants/colors";
 import AppSettingMenu from "../../components/AppSettingMenu";
 import { useTheme } from "../../hooks/useTheme";
 import { useNavigation } from "@react-navigation/native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logOut } from "../../store/AuthSlice";
 import routes from "../../navigations/routes";
 
@@ -15,6 +15,8 @@ const Settings = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user);
+
   return (
     <View
       style={{
@@ -27,7 +29,7 @@ const Settings = () => {
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flex: 1 }}
+        // contentContainerStyle={{ flex: 1 }}
       >
         <Text
           style={{
@@ -58,29 +60,17 @@ const Settings = () => {
               marginTop: 15,
             }}
           >
-            <AppSettingMenu
-              label={"Name"}
-              value={"Abdul-Qudus Rufai"}
-              addBorder
-            />
+            <AppSettingMenu label={"Name"} value={user.userName} addBorder />
 
-            <AppSettingMenu
-              label={"Email"}
-              value={"rufixduke09@gmail.com"}
-              addBorder
-            />
+            <AppSettingMenu label={"Email"} value={user.email} addBorder />
 
             <AppSettingMenu
               label={"Username"}
-              value={"Abdul-Qudus"}
+              value={user.userName}
               addBorder
             />
 
-            <AppSettingMenu
-              label={"Date of Birth"}
-              value={"6th October, 2001"}
-              date
-            />
+            <AppSettingMenu label={"Date of Birth"} value={"Nil"} date />
           </View>
         </View>
 

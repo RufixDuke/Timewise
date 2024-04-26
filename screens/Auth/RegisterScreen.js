@@ -18,11 +18,20 @@ import routes from "../../navigations/routes";
 import { useNavigation } from "@react-navigation/native";
 import { Fonts } from "../../constants/fonts";
 import { Colors } from "../../constants/colors";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../store/UserSlice";
+import { login } from "../../store/AuthSlice";
 
 const RegisterScreen = () => {
   const [secure, setSecure] = useState(true);
   const [secureConfirm, setSecureConfirm] = useState(true);
   const navigation = useNavigation();
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const dispatch = useDispatch();
+
   return (
     <ImageBackground
       source={Images["screen-bg"]}
@@ -55,6 +64,8 @@ const RegisterScreen = () => {
             returnKeyType={"next"}
             autoComplete={"name"}
             autoCapitalize={"none"}
+            value={userName}
+            onChangeText={(text) => setUserName(text)}
           />
 
           <AppTextInput
@@ -64,6 +75,8 @@ const RegisterScreen = () => {
             returnKeyType={"next"}
             autoComplete={"email"}
             autoCapitalize={"none"}
+            value={email}
+            onChangeText={(text) => setEmail(text)}
           />
 
           <AppTextInput
@@ -76,6 +89,8 @@ const RegisterScreen = () => {
             secure={secure}
             onPress={() => setSecure(!secure)}
             type={"password"}
+            value={password}
+            onChangeText={(text) => setPassword(text)}
           />
 
           <AppTextInput
@@ -88,11 +103,16 @@ const RegisterScreen = () => {
             secure={secureConfirm}
             onPress={() => setSecureConfirm(!secureConfirm)}
             type={"password"}
+            value={confirmPassword}
+            onChangeText={(text) => setConfirmPassword(text)}
           />
           <View style={{ gap: 20 }}>
             <AppButton
               label={"Login"}
-              onPress={() => navigation.navigate(routes.FORGOT_PASSWORD_SCREEN)}
+              onPress={() => {
+                dispatch(setUser({ userName, email, password }));
+                dispatch(login());
+              }}
             />
 
             <Text

@@ -52,6 +52,7 @@ const CreateAlarm = () => {
   date.setMinutes(date.getMinutes());
 
   const timeRemaining = calculateTimeRemaining(date);
+  console.log(new Date(date).getHours());
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
@@ -82,7 +83,6 @@ const CreateAlarm = () => {
         } else {
           setAudioUrl(result.assets[0].url);
           setAudioName(result.assets[0].name);
-          console.log("Selected audio:", result.assets[0].uri);
         }
       } else {
         Alert.alert("Error", "Error selecting the ringtone for the alarm");
@@ -429,10 +429,12 @@ const CreateAlarm = () => {
             onPress={() => {
               dispatch(
                 addAlarm({
-                  id: alarms.length + 1,
+                  id: `alarm${alarms.length + 1}`,
                   time: formattedTime,
                   day: selectedDay,
                   duration: timeRemaining,
+                  date: date,
+                  active: true,
                 })
               );
               navigation.navigate(routes.SUCCESS_SCREEN, {

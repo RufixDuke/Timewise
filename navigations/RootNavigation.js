@@ -13,7 +13,7 @@ const RootNavigation = () => {
   useEffect(() => {
     setTimeout(() => {
       setAppIsReady(true);
-    }, 7000); // Adjust this time according to your welcome screen duration
+    }, 3000); // Adjust this time according to your welcome screen duration
   }, []);
   return (
     <>

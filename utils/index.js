@@ -1,10 +1,14 @@
 export const calculateTimeRemaining = (alarmTime) => {
   const currentTime = new Date();
-  const timeDifference = alarmTime.getTime() - currentTime.getTime();
+  const alarmTimeAdjusted = new Date(alarmTime);
 
-  if (timeDifference < 0) {
-    return "Alarm sounds now";
+  // Check if alarm time is before or after current time
+  if (alarmTimeAdjusted < currentTime) {
+    // If the alarm time is before the current time, adjust it to the next day
+    alarmTimeAdjusted.setDate(alarmTimeAdjusted.getDate() + 1);
   }
+
+  const timeDifference = alarmTimeAdjusted.getTime() - currentTime.getTime();
 
   const hours = Math.floor(timeDifference / (1000 * 60 * 60));
   const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));

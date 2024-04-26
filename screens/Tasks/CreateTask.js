@@ -1,13 +1,14 @@
 import {
   Alert,
   Image,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Constants from "expo-constants";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
@@ -33,19 +34,10 @@ const CreateTask = () => {
   const [name, setName] = useState("");
   const [day, setDay] = useState("");
   const dispatch = useDispatch();
-  const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
-    { label: "Monday", value: "Monday" },
-    { label: "Tuesday", value: "Tuesday" },
-    { label: "Wednesday", value: "Wednesday" },
-    { label: "Thursday", value: "Thursday" },
-    { label: "Friday", value: "Friday" },
-    { label: "Saturday", value: "Saturday" },
-    { label: "Sunday", value: "Sunday" },
-  ]);
 
   const { tasks } = useSelector((state) => state.tasks);
+  const sleep = useSelector((state) => state.sleep);
 
   const [fromTime, setFromTime] = useState(new Date());
   const [toTime, setToTime] = useState(new Date());
@@ -53,17 +45,21 @@ const CreateTask = () => {
   const [showToPicker, setShowToPicker] = useState(false);
   const [description, setDescription] = useState("");
 
-  // Function to handle From time selection
+  //   Function to handle From time selection
   const handleFromTimeChange = (event, selectedDate) => {
     const currentDate = selectedDate;
-    setShowFromPicker(false);
+    if (Platform.OS === "android") {
+      setShowFromPicker(false);
+    }
     setFromTime(currentDate);
   };
 
   // Function to handle To time selection
   const handleToTimeChange = (event, selectedDate) => {
     const currentDate = selectedDate;
-    setShowToPicker(false);
+    if (Platform.OS === "android") {
+      setShowToPicker(false);
+    }
     setToTime(currentDate);
   };
 
@@ -74,12 +70,33 @@ const CreateTask = () => {
   };
 
   const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setDate(currentDate);
-    setShowClock(false);
-    // if (Platform.OS === "android") {
-    // }
+    const currentDate = moment();
+    if (moment(selectedDate, moment.ISO_8601, true).isValid()) {
+      const selectedMoment = moment(selectedDate);
+      if (selectedMoment.isBefore(currentDate, "day")) {
+        Alert.alert(
+          "Invalid Date",
+          "Please select a date from today or later.",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                setDate(currentDate.toDate());
+              },
+            },
+          ],
+          { cancelable: false }
+        );
+      } else {
+        setDate(selectedMoment.toDate());
+      }
+      setShowClock(false);
+    }
   };
+
+  useEffect(() => {
+    setValue(moment(date).format("dddd"));
+  }, [date]);
 
   const pickAudio = async () => {
     try {
@@ -213,13 +230,13 @@ const CreateTask = () => {
             {showClock && (
               <DateTimePicker
                 testID="dateTimePicker"
-                value={date}
+                value={date || new Date()}
                 mode={"date"}
                 is24Hour={false}
                 display={"calendar"}
                 onChange={onChange}
                 style={{
-                  backgroundColor: Colors.background,
+                  backgroundColor: Colors.white,
                   height: 300,
                 }}
                 accentColor={Colors.white}
@@ -228,62 +245,16 @@ const CreateTask = () => {
             )}
           </View>
 
-          <View style={{ marginBottom: 20 }}>
-            <Text
-              style={{
-                fontFamily: Fonts.body3.fontFamily,
-                fontSize: Fonts.body3.fontSize,
-                color: Colors.menu_label,
-                lineHeight: Fonts.body3.lineHeight,
-                marginTop: 10,
-              }}
-            >
-              Day
-            </Text>
-            <DropDownPicker
-              open={open}
-              value={value}
-              items={items}
-              setOpen={setOpen}
-              setValue={setValue}
-              setItems={setItems}
-              listMode={"SCROLLVIEW"}
-              ArrowDownIconComponent={() => (
-                <Image
-                  source={Images["dropdown-img"]}
-                  style={{ width: 18, height: 10 }}
-                />
-              )}
-              labelStyle={{
-                color: Colors.header,
-                fontFamily: Fonts.body3.fontFamily,
-                fontSize: Fonts.body3.fontSize,
-              }}
-              placeholder="Select the day"
-              placeholderStyle={{
-                fontFamily: Fonts.body3.fontFamily,
-                fontSize: Fonts.body3.fontSize,
-                color: Colors.placeholder,
-                lineHeight: Fonts.body3.lineHeight,
-              }}
-              textStyle={{
-                color: Colors.black,
-                fontFamily: Fonts.body3.fontFamily,
-                fontSize: Fonts.body3.fontSize,
-              }}
-              style={{
-                backgroundColor: Colors.inputBg,
-                borderRadius: 24,
-                marginTop: 10,
-                borderWidth: 0,
-                height: 44,
-                zIndex: 500000,
-              }}
-              dropDownContainerStyle={{
-                zIndex: 4000,
-              }}
-            />
-          </View>
+          <AppTextInput
+            label={"Day"}
+            placeholder={"Enter the day"}
+            keyboardType={"default"}
+            returnKeyType={"next"}
+            autoComplete={"name"}
+            autoCapitalize={"none"}
+            value={value}
+            editable={false}
+          />
 
           <View
             style={{
@@ -470,6 +441,7 @@ const CreateTask = () => {
             alignItems: "flex-start",
             marginTop: 10,
             gap: 8,
+            width: "90%",
           }}
         >
           <Image
@@ -488,7 +460,8 @@ const CreateTask = () => {
               color: Colors.text,
             }}
           >
-            Pls note time from 22;00 to 6:00 can’t be assigned to any tasks
+            Pls note time from {moment(sleep.from).format("HH:mm")} to{" "}
+            {moment(sleep.to).format("HH:mm")} can’t be assigned to any tasks
             because of your sleep target
           </Text>
         </View>
@@ -501,15 +474,16 @@ const CreateTask = () => {
             onPress={() => {
               dispatch(
                 addTasks({
-                  id: tasks.length + 1,
+                  id: `task${tasks.length + 1}`,
                   name: name,
                   to: toTime.toISOString(),
                   from: fromTime.toISOString(),
                   duration: calculateTimeDifference(),
-                  date: moment(date).format("Do MMMM, YYYY"),
+                  date: date.toISOString(),
                   active: false,
                   day: value,
                   description: description,
+                  completed: false,
                 })
               );
               navigation.navigate(routes.SUCCESS_SCREEN, {
@@ -519,17 +493,7 @@ const CreateTask = () => {
                 img: Images["task-success"],
               });
             }}
-            disabled={
-              !name ||
-              !value ||
-              !description ||
-              //   audioName === "" ||
-              toTime < fromTime ||
-              toTime.getHours() < 6 ||
-              fromTime.getHours() < 6 ||
-              toTime.getHours() > 22 ||
-              fromTime.getHours() > 22
-            }
+            disabled={!name || !value || !description}
           />
         </View>
       </ScrollView>

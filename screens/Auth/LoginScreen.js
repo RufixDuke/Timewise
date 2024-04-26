@@ -1,4 +1,11 @@
-import { Image, ImageBackground, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Image,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import React, { useState } from "react";
 import Constants from "expo-constants";
 import { Images } from "../../constants/images";
@@ -9,13 +16,29 @@ import { Fonts } from "../../constants/fonts";
 import AppButton from "../../components/AppButton";
 import { useNavigation } from "@react-navigation/native";
 import routes from "../../navigations/routes";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../store/AuthSlice";
+import { setUser } from "../../store/UserSlice";
 
 const LoginScreen = () => {
   const [secure, setSecure] = useState(true);
   const navigation = useNavigation();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const dispatch = useDispatch();
+
+  const { user } = useSelector((state) => state.user);
+
+  const handleLogin = () => {
+    if (user.password === password && user.email === email) {
+      dispatch(login());
+      dispatch(setUser({ ...user, email, password }));
+    } else if (user.email !== email) {
+      Alert.alert("Error", "Email is incorrect", [{ text: "OK" }]);
+    } else if (user.password !== password) {
+      Alert.alert("Error", "Password is incorrect", [{ text: "OK" }]);
+    }
+  };
   return (
     <ImageBackground
       source={Images["screen-bg"]}
@@ -45,6 +68,8 @@ const LoginScreen = () => {
           returnKeyType={"next"}
           autoComplete={"email"}
           autoCapitalize={"none"}
+          value={email}
+          onChangeText={(text) => setEmail(text)}
         />
 
         <AppTextInput
@@ -57,6 +82,8 @@ const LoginScreen = () => {
           secure={secure}
           onPress={() => setSecure(!secure)}
           type={"password"}
+          value={password}
+          onChangeText={(text) => setPassword(text)}
         />
       </View>
 
@@ -73,7 +100,7 @@ const LoginScreen = () => {
       </Text>
 
       <View style={{ marginTop: 40, gap: 20 }}>
-        <AppButton label={"Login"} onPress={() => dispatch(login())} />
+        <AppButton label={"Login"} onPress={handleLogin} />
 
         <Text
           style={{
@@ -139,5 +166,3 @@ const LoginScreen = () => {
 };
 
 export default LoginScreen;
-
-const styles = StyleSheet.create({});

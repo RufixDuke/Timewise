@@ -1,8 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { calculateTimeRemaining } from "../utils";
 
 const initialState = {
-  tasks: [], // Array to store alarms
+  tasks: [],
 };
 
 const TaskSlice = createSlice({
@@ -10,25 +9,28 @@ const TaskSlice = createSlice({
   initialState,
   reducers: {
     addTasks(state, action) {
-      state.tasks.push(action.payload); // Add the new alarm object to the array
-    },
-    // Reducer to update time remaining for all alarms
-    updateTimeRemaining(state) {
-      state.alarms.forEach((alarm) => {
-        alarm.timeRemaining = calculateTimeRemaining(alarm.time);
-      });
+      state.tasks.push(action.payload);
     },
     updateTaskActiveStatus(state, action) {
-      const { id, isActive } = action.payload;
+      const { id, active, completed } = action.payload;
       const taskToUpdate = state.tasks.find((task) => task.id === id);
       if (taskToUpdate) {
-        taskToUpdate.active = isActive;
+        taskToUpdate.active = active;
+        taskToUpdate.completed = completed;
       }
+    },
+    deleteTask(state, action) {
+      const taskId = action.payload;
+      state.tasks = state.tasks.filter((task) => task.id !== taskId);
     },
   },
 });
 
-export const { addTasks, updateTimeRemaining, updateTaskActiveStatus } =
-  TaskSlice.actions;
+export const {
+  addTasks,
+  updateTimeRemaining,
+  updateTaskActiveStatus,
+  deleteTask,
+} = TaskSlice.actions;
 
 export default TaskSlice.reducer;

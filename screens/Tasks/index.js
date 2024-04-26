@@ -10,6 +10,7 @@ import {
 import React, { useEffect, useState } from "react";
 import Constants from "expo-constants";
 import moment from "moment";
+import * as Notifications from "expo-notifications";
 
 import { Colors } from "../../constants/colors";
 import { Fonts } from "../../constants/fonts";
@@ -20,7 +21,6 @@ import { useTheme } from "../../hooks/useTheme";
 import { useSelector } from "react-redux";
 import routes from "../../navigations/routes";
 import { LinearGradient } from "expo-linear-gradient";
-import { isCurrentDay, isTaskActive } from "../../utils";
 
 const Days = [
   { label: "Mon", value: "Monday" },
@@ -52,6 +52,27 @@ const Task = () => {
     setSelectedDayIndex(currentDayIndex);
     setSelectedDayValue(Days[currentDayIndex].value);
   }, []);
+
+  alarms.forEach((alarm) => {
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Alarm",
+        body: "Your alarm is ringing!",
+      },
+      trigger: {
+        // Calculate the time difference between now and the alarm time
+        seconds: (alarm.date - Date.now()) / 1000,
+      },
+    });
+  });
+
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
 
   return (
     <View
@@ -140,30 +161,6 @@ const Task = () => {
         </View>
       </View>
 
-      {alarms.length === 0 && activeLink === "Quick Alarm" ? (
-        <View style={{ flex: 1, justifyContent: "center", marginBottom: 100 }}>
-          <EmptyState
-            title={"No alarm set"}
-            img={Images["empty-alarm"]}
-            info={"You don’t have any incoming alarms"}
-            showButton
-            btnText={"Add Alarm"}
-            onPress={() => navigation.navigate(routes.CREATE_ALARM)}
-          />
-        </View>
-      ) : tasks.length === 0 && activeLink === "Task" ? (
-        <View style={{ flex: 1, justifyContent: "center", marginBottom: 100 }}>
-          <EmptyState
-            title={"No Task set"}
-            img={Images["empty-task"]}
-            info={"You don’t have any task for today"}
-            showButton
-            btnText={"Add Task"}
-            onPress={() => navigation.navigate(routes.CREATE_TASK)}
-          />
-        </View>
-      ) : null}
-
       {activeLink === "Quick Alarm" ? (
         <View style={{ marginTop: 20 }}>
           {alarms?.map((alarm) => (
@@ -210,39 +207,41 @@ const Task = () => {
         </View>
       ) : (
         <View style={{ marginTop: 20 }}>
-          <ScrollView horizontal>
-            {Days.map((day, index) => (
-              <Pressable
-                key={day.label}
-                style={{ width: 30, marginRight: 44 }}
-                onPress={() => handleDayPress(index, day.value)}
-              >
-                <Text
-                  style={{
-                    fontFamily: Fonts.body3.fontFamily,
-                    fontSize: Fonts.body3.fontSize,
-                    color:
-                      index === selectedDayIndex
-                        ? Colors.text
-                        : "rgba(118, 118, 118, 1)",
-                  }}
+          {tasks.length > 0 && (
+            <ScrollView horizontal>
+              {Days.map((day, index) => (
+                <Pressable
+                  key={day.label}
+                  style={{ width: 30, marginRight: 44 }}
+                  onPress={() => handleDayPress(index, day.value)}
                 >
-                  {day.label}
-                </Text>
-                {index === selectedDayIndex && (
-                  <Image
-                    source={Images.dot}
+                  <Text
                     style={{
-                      width: 5,
-                      height: 5,
-                      resizeMode: "contain",
-                      marginTop: 5,
+                      fontFamily: Fonts.body3.fontFamily,
+                      fontSize: Fonts.body3.fontSize,
+                      color:
+                        index === selectedDayIndex
+                          ? Colors.text
+                          : "rgba(118, 118, 118, 1)",
                     }}
-                  />
-                )}
-              </Pressable>
-            ))}
-          </ScrollView>
+                  >
+                    {day.label}
+                  </Text>
+                  {index === selectedDayIndex && (
+                    <Image
+                      source={Images.dot}
+                      style={{
+                        width: 5,
+                        height: 5,
+                        resizeMode: "contain",
+                        marginTop: 5,
+                      }}
+                    />
+                  )}
+                </Pressable>
+              ))}
+            </ScrollView>
+          )}
 
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={{ marginTop: 20, gap: 16, flex: 1 }}>
@@ -390,7 +389,7 @@ const Task = () => {
                                 color: '"rgba(160, 160, 160, 1)"',
                               }}
                             >
-                              {/* {isActive ? "Active" : ""} */}
+                              {task.completed ? "Completed" : ""}
                             </Text>
                           </View>
                         </View>
@@ -398,6 +397,66 @@ const Task = () => {
                     </View>
                   );
                 })}
+
+              {/* Display message when there are no tasks */}
+              {tasks.length > 0 &&
+                tasks.filter((task) => task.day === selectedDayValue).length ===
+                  0 && (
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginTop: 40,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: Fonts.h5.fontFamily,
+                        fontSize: Fonts.h5.fontSize,
+                        color: Colors.text,
+                      }}
+                    >
+                      No Task here
+                    </Text>
+                  </View>
+                )}
+
+              {alarms.length === 0 && activeLink === "Quick Alarm" ? (
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    marginBottom: 100,
+                  }}
+                >
+                  <EmptyState
+                    title={"No alarm set"}
+                    img={Images["empty-alarm"]}
+                    info={"You don’t have any incoming alarms"}
+                    showButton
+                    btnText={"Add Alarm"}
+                    onPress={() => navigation.navigate(routes.CREATE_ALARM)}
+                  />
+                </View>
+              ) : tasks.length === 0 && activeLink === "Task" ? (
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    marginBottom: 100,
+                  }}
+                >
+                  <EmptyState
+                    title={"No Task set"}
+                    img={Images["empty-task"]}
+                    info={"You don’t have any task for today"}
+                    showButton
+                    btnText={"Add Task"}
+                    onPress={() => navigation.navigate(routes.CREATE_TASK)}
+                  />
+                </View>
+              ) : null}
             </View>
           </ScrollView>
         </View>

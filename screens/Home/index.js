@@ -11,23 +11,40 @@ import {
 import React from "react";
 import Constants from "expo-constants";
 import moment from "moment";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Colors } from "../../constants/colors";
 import { Fonts } from "../../constants/fonts";
 import { Images } from "../../constants/images";
 import EmptyState from "../../components/EmptyState";
-import { isTaskActive } from "../../utils";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import routes from "../../navigations/routes";
-import { useTheme } from "../../hooks/useTheme";
+import { updateAlarmActiveStatus } from "../../store/AlarmSlice";
 
 const HomeScreen = () => {
   const { alarms } = useSelector((state) => state.alarms);
   const { tasks } = useSelector((state) => state.tasks);
+  const { user } = useSelector((state) => state.user);
+
   const navigation = useNavigation();
-  const { isDarkMode, toggleTheme } = useTheme();
+  const dispatch = useDispatch();
+
+  const currentTime = moment();
+  let timeOfDay;
+
+  // Determine time of day based on current hour
+  const currentHour = currentTime.hour();
+  if (currentHour >= 5 && currentHour < 12) {
+    timeOfDay = "Morning";
+  } else if (currentHour >= 12 && currentHour < 18) {
+    timeOfDay = "Afternoon";
+  } else {
+    timeOfDay = "Evening";
+  }
+  const handleUpdateAlarm = (alarm) => {
+    dispatch(updateAlarmActiveStatus({ id: alarm.id, active: !alarm.active }));
+  };
   return (
     <View
       style={{
@@ -37,10 +54,7 @@ const HomeScreen = () => {
         paddingHorizontal: 20,
       }}
     >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        // contentContainerStyle={{ flex: 1 }}
-      >
+      <ScrollView showsVerticalScrollIndicator={false}>
         <Text
           style={{
             fontFamily: Fonts.h5.fontFamily,
@@ -48,7 +62,7 @@ const HomeScreen = () => {
             color: Colors.text,
           }}
         >
-          Hello, Andul-Qudus👋🏾
+          Hello, {user.userName ? user.userName : "Pal"}👋🏾
         </Text>
 
         <ImageBackground
@@ -73,7 +87,7 @@ const HomeScreen = () => {
                 color: Colors.white,
               }}
             >
-              Good Morning
+              Good {timeOfDay}
             </Text>
           </View>
 
@@ -92,7 +106,7 @@ const HomeScreen = () => {
                   color: Colors.white,
                 }}
               >
-                Monday
+                {currentTime.format("dddd")}
               </Text>
               <Text
                 style={{
@@ -101,7 +115,7 @@ const HomeScreen = () => {
                   color: "rgba(97, 97, 97, 1)",
                 }}
               >
-                22nd April, 2024
+                {currentTime.format("Do MMMM, YYYY")}
               </Text>
             </View>
 
@@ -115,6 +129,7 @@ const HomeScreen = () => {
                 alignItems: "center",
                 gap: 8,
               }}
+              onPress={() => navigation.navigate(routes.CREATE_TASK)}
             >
               <Image
                 source={Images["add-icon"]}
@@ -152,47 +167,54 @@ const HomeScreen = () => {
             />
           )}
 
-          <View style={{ marginTop: 10, paddingHorizontal: 4 }}>
-            {alarms?.map((alarm) => (
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-                key={alarm.id}
-              >
-                <View style={{ gap: 5 }}>
-                  <Text
-                    style={{
-                      fontFamily: Fonts.h6.fontFamily,
-                      fontSize: Fonts.body2.fontSize,
-                      color: Colors.white,
-                    }}
-                  >
-                    {alarm.time}
-                  </Text>
-                  <Text
-                    style={{
-                      fontFamily: Fonts.body4.fontFamily,
-                      fontSize: Fonts.body4.fontSize,
-                      color: Colors.menu_label,
-                    }}
-                  >
-                    {alarm.day} | {alarm.duration}
-                  </Text>
-                </View>
-
-                <Switch
-                  value={isDarkMode}
-                  onValueChange={toggleTheme}
-                  trackColor={{
-                    false: Colors.gray,
-                    true: Colors.switch_active,
+          <View style={{ marginTop: 10, paddingHorizontal: 4, gap: 15 }}>
+            {alarms
+              ?.slice(-2)
+              .filter(
+                (alarm) =>
+                  moment(alarm.date).format("Do MMMM YYYY") ===
+                  moment().format("Do MMMM YYYY")
+              )
+              .map((alarm) => (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                   }}
-                />
-              </View>
-            ))}
+                  key={alarm.id}
+                >
+                  <View style={{ gap: 5 }}>
+                    <Text
+                      style={{
+                        fontFamily: Fonts.h6.fontFamily,
+                        fontSize: Fonts.body2.fontSize,
+                        color: Colors.white,
+                      }}
+                    >
+                      {alarm.time}
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: Fonts.body4.fontFamily,
+                        fontSize: Fonts.body4.fontSize,
+                        color: Colors.menu_label,
+                      }}
+                    >
+                      {alarm.day} | {alarm.duration}
+                    </Text>
+                  </View>
+
+                  <Switch
+                    value={alarm.active}
+                    onValueChange={() => handleUpdateAlarm(alarm)}
+                    trackColor={{
+                      false: Colors.gray,
+                      true: Colors.switch_active,
+                    }}
+                  />
+                </View>
+              ))}
           </View>
         </View>
 
@@ -222,20 +244,32 @@ const HomeScreen = () => {
                   fontSize: Fonts.body3.fontSize,
                   color: Colors.header,
                 }}
+                onPress={() => navigation.navigate("Alarm")}
               >
                 View all
               </Text>
             )}
           </View>
 
-          {tasks.length === 0 && (
+          {(tasks.length === 0 ||
+            tasks.filter(
+              (task) =>
+                moment(task.date).format("Do MMMM YYYY") ===
+                moment().format("Do MMMM YYYY")
+            ).length === 0) && (
             <EmptyState
               title={"No Task Set"}
               info={"You don’t have any task set"}
               img={Images["empty-task"]}
+              containerStyle={{ marginTop: 10 }}
             />
           )}
 
+          {/* .filter(
+              (task) =>
+                moment(task.date).format("Do MMMM YYYY") ===
+                moment().format("Do MMMM YYYY")
+            ) */}
           {tasks
             .slice(0)
             .sort((taskA, taskB) => {
@@ -384,6 +418,7 @@ const HomeScreen = () => {
                             color: '"rgba(160, 160, 160, 1)"',
                           }}
                         >
+                          {task.completed ? "Completed" : ""}
                           {/* {isActive ? "Active" : ""} */}
                         </Text>
                       </View>

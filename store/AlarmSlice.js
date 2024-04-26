@@ -9,23 +9,25 @@ const AlarmsSlice = createSlice({
   name: "alarms",
   initialState,
   reducers: {
-    // Reducer to add an alarm
     addAlarm(state, action) {
-      state.alarms.push(action.payload); // Add the new alarm object to the array
+      state.alarms.push(action.payload);
     },
-    // Reducer to update time remaining for all alarms
+    updateAlarmActiveStatus(state, action) {
+      const { id, active } = action.payload;
+      const alarmToUpdate = state.alarms.find((task) => task.id === id);
+      if (alarmToUpdate) {
+        alarmToUpdate.active = active;
+      }
+    },
     updateTimeRemaining(state) {
       state.alarms.forEach((alarm) => {
-        // Calculate time remaining for each alarm and update the corresponding property
-        // You can use the logic from the previous example to calculate time remaining
-        // For simplicity, let's assume the time remaining is calculated elsewhere and provided as a property
-        // Replace 'timeRemaining' with the actual property name containing the time remaining
         alarm.timeRemaining = calculateTimeRemaining(alarm.time);
       });
     },
   },
 });
 
-export const { addAlarm, updateTimeRemaining } = AlarmsSlice.actions;
+export const { addAlarm, updateTimeRemaining, updateAlarmActiveStatus } =
+  AlarmsSlice.actions;
 
 export default AlarmsSlice.reducer;
