@@ -52,7 +52,6 @@ const CreateAlarm = () => {
   date.setMinutes(date.getMinutes());
 
   const timeRemaining = calculateTimeRemaining(date);
-  console.log(new Date(date).getHours());
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
@@ -433,7 +432,7 @@ const CreateAlarm = () => {
                   time: formattedTime,
                   day: selectedDay,
                   duration: timeRemaining,
-                  date: date,
+                  date: date.toISOString(),
                   active: true,
                 })
               );

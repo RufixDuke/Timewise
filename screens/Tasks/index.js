@@ -18,9 +18,10 @@ import EmptyState from "../../components/EmptyState";
 import { Images } from "../../constants/images";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../hooks/useTheme";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import routes from "../../navigations/routes";
 import { LinearGradient } from "expo-linear-gradient";
+import { updateAlarmActiveStatus } from "../../store/AlarmSlice";
 
 const Days = [
   { label: "Mon", value: "Monday" },
@@ -38,6 +39,7 @@ const Task = () => {
   const navigation = useNavigation();
   const { alarms } = useSelector((state) => state.alarms);
   const { tasks } = useSelector((state) => state.tasks);
+  const dispatch = useDispatch();
 
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [selectedDayValue, setSelectedDayValue] = useState("");
@@ -73,6 +75,10 @@ const Task = () => {
       shouldSetBadge: false,
     }),
   });
+
+  const handleUpdateAlarm = (alarm) => {
+    dispatch(updateAlarmActiveStatus({ id: alarm.id, active: !alarm.active }));
+  };
 
   return (
     <View
@@ -195,8 +201,8 @@ const Task = () => {
               </View>
 
               <Switch
-                value={isDarkMode}
-                onValueChange={toggleTheme}
+                value={alarm.active}
+                onValueChange={() => handleUpdateAlarm(alarm)}
                 trackColor={{
                   false: Colors.gray,
                   true: Colors.switch_active,
@@ -421,46 +427,46 @@ const Task = () => {
                     </Text>
                   </View>
                 )}
-
-              {alarms.length === 0 && activeLink === "Quick Alarm" ? (
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: "center",
-                    marginBottom: 100,
-                  }}
-                >
-                  <EmptyState
-                    title={"No alarm set"}
-                    img={Images["empty-alarm"]}
-                    info={"You don’t have any incoming alarms"}
-                    showButton
-                    btnText={"Add Alarm"}
-                    onPress={() => navigation.navigate(routes.CREATE_ALARM)}
-                  />
-                </View>
-              ) : tasks.length === 0 && activeLink === "Task" ? (
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: "center",
-                    marginBottom: 100,
-                  }}
-                >
-                  <EmptyState
-                    title={"No Task set"}
-                    img={Images["empty-task"]}
-                    info={"You don’t have any task for today"}
-                    showButton
-                    btnText={"Add Task"}
-                    onPress={() => navigation.navigate(routes.CREATE_TASK)}
-                  />
-                </View>
-              ) : null}
             </View>
           </ScrollView>
         </View>
       )}
+
+      {alarms.length === 0 && activeLink === "Quick Alarm" ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            marginBottom: 100,
+          }}
+        >
+          <EmptyState
+            title={"No Alarm set"}
+            img={Images["empty-alarm"]}
+            info={"You don’t have any incoming alarm"}
+            showButton
+            btnText={"Add Alarm"}
+            onPress={() => navigation.navigate(routes.CREATE_ALARM)}
+          />
+        </View>
+      ) : tasks.length === 0 && activeLink === "Task" ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            marginBottom: 100,
+          }}
+        >
+          <EmptyState
+            title={"No Task set"}
+            img={Images["empty-task"]}
+            info={"You don’t have any task for today"}
+            showButton
+            btnText={"Add Task"}
+            onPress={() => navigation.navigate(routes.CREATE_TASK)}
+          />
+        </View>
+      ) : null}
 
       {activeLink === "Quick Alarm" && alarms.length > 0 && (
         <Pressable

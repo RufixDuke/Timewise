@@ -169,8 +169,7 @@ const HomeScreen = () => {
 
           <View style={{ marginTop: 10, paddingHorizontal: 4, gap: 15 }}>
             {alarms
-              ?.slice(-2)
-              .filter(
+              ?.filter(
                 (alarm) =>
                   moment(alarm.date).format("Do MMMM YYYY") ===
                   moment().format("Do MMMM YYYY")
@@ -265,13 +264,12 @@ const HomeScreen = () => {
             />
           )}
 
-          {/* .filter(
+          {tasks
+            .filter(
               (task) =>
                 moment(task.date).format("Do MMMM YYYY") ===
                 moment().format("Do MMMM YYYY")
-            ) */}
-          {tasks
-            .slice(0)
+            )
             .sort((taskA, taskB) => {
               if (taskA.active && !taskB.active) return -1;
               if (!taskA.active && taskB.active) return 1;

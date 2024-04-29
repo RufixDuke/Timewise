@@ -8,7 +8,7 @@ import AppSettingMenu from "../../components/AppSettingMenu";
 import { useTheme } from "../../hooks/useTheme";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
-import { logOut } from "../../store/AuthSlice";
+import { logout } from "../../store/AuthSlice";
 import routes from "../../navigations/routes";
 
 const Settings = () => {
@@ -159,7 +159,7 @@ const Settings = () => {
 
             <AppSettingMenu
               value={"Log Out"}
-              onPress={() => dispatch(logOut())}
+              onPress={() => dispatch(logout())}
             />
           </View>
         </View>

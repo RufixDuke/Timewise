@@ -1,15 +1,13 @@
 import {
   ActivityIndicator,
   Alert,
-  Animated,
   Image,
-  PanResponder,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import Constant from "expo-constants";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useDispatch } from "react-redux";

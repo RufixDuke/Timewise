@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { persistor } from ".";
 
 export const AuthSlice = createSlice({
   name: "auth",
@@ -14,6 +15,12 @@ export const AuthSlice = createSlice({
     },
   },
 });
+
+export const logout = () => async (dispatch) => {
+  await persistor.purge();
+  await persistor.purge();
+  dispatch(logOut());
+};
 
 export const { login, logOut } = AuthSlice.actions;
 
