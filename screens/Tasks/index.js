@@ -187,7 +187,7 @@ const Task = () => {
                     color: Colors.white,
                   }}
                 >
-                  {alarm.time}
+                  {moment(alarm.date).format("HH:mm A")}
                 </Text>
                 <Text
                   style={{
