@@ -12,6 +12,7 @@ export const calculateTimeRemaining = (alarmTime) => {
 
   const hours = Math.floor(timeDifference / (1000 * 60 * 60));
   const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
 
   let remainingTime = "Alarm sounds in";
   if (hours > 0) {
@@ -19,6 +20,9 @@ export const calculateTimeRemaining = (alarmTime) => {
   }
   if (minutes > 0) {
     remainingTime += ` ${minutes} ${minutes === 1 ? "minute" : "minutes"}`;
+  }
+  if (seconds > 0) {
+    remainingTime += ` ${seconds} ${seconds === 1 ? "second" : "seconds"}`;
   }
 
   return remainingTime;

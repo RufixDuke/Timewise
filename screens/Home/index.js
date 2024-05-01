@@ -38,7 +38,6 @@ const HomeScreen = () => {
   const { tasks } = useSelector((state) => state.tasks);
   const { user } = useSelector((state) => state.user);
   const [expoPushToken, setExpoPushToken] = useState("");
-  const [notificationSent, setNotificationSent] = useState(false);
 
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -60,10 +59,8 @@ const HomeScreen = () => {
   };
 
   useEffect(() => {
-    console.log("Registering for push notifications...");
     registerForPushNotificationsAsync()
       .then((token) => {
-        console.log("token: ", token);
         setExpoPushToken(token);
       })
       .catch((err) => console.log(err));
@@ -100,7 +97,6 @@ const HomeScreen = () => {
           projectId: "d4bba7fd-25eb-4895-8aac-bf5f1f9f9a65",
         })
       ).data;
-      console.log(token);
     } else {
       alert("Must use physical device for Push Notifications");
     }
@@ -119,7 +115,7 @@ const HomeScreen = () => {
         const newAlarm = moment(alarm.date).format("HH:mm:ss");
 
         if (newTime === newAlarm) {
-          sendNotification("Yo!! It's time", "Oya get up and let's do it");
+          sendNotification(newAlarm, "Oya get up and let's do it");
         }
       });
     }, 1000);
